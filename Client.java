@@ -1,6 +1,8 @@
 package belkadev.pl;
 
-public class Client {
+import java.io.Serializable;
+
+public class Client implements Serializable {
     private int id;
     private static int counterId = 0;
 
@@ -19,36 +21,73 @@ public class Client {
     }
 
     public int getId() {
-        return this.id;
+        return id;
     }
 
-    public String getFname() {
-        return this.firstName;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public String getSname() {
-        return this.surName;
+    public static int getCounterId() {
+        return counterId;
     }
 
-    public double getSaldo() {
-        return this.accBalance;
+    public static void setCounterId(int counterId) {
+        Client.counterId = counterId;
     }
 
-    public void setSaldo(double saldo) {
-        this.accBalance = saldo;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public double getOprocentowanie() {
-        return this.interest;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public void naliczOprocentowanie() {
+    public String getSurName() {
+        return surName;
+    }
+
+    public void setSurName(String surName) {
+        this.surName = surName;
+    }
+
+    public Double getAccBalance() {
+        return accBalance;
+    }
+
+    public void setAccBalance(Double accBalance) {
+        this.accBalance = accBalance;
+    }
+
+    public Double getInterest() {
+        return interest;
+    }
+
+    public void setInterest(Double interest) {
+        this.interest = interest;
+    }
+
+    public boolean getVipStatus() {
+        return false;
+    }
+
+    public boolean setVipStatus() {
+        return false;
+    }
+
+
+    public void calculateInterest() {
         this.accBalance += this.accBalance * (this.interest / 100);
     }
 
     @Override
     public String toString() {
-        return "Imię: " + this.firstName + ", Nazwisko: " + this.surName + ", saldo konta: " + this.accBalance
+        return "ID " + this.id + ", Imię: " + this.firstName + ", Nazwisko: " + this.surName + ", saldo konta: " + this.accBalance
                 + ", oprocentowanie: " + this.interest;
+    }
+
+    public String toStringShort(){
+        return "ID " + this.id + ", Imię: " + this.firstName + ", Nazwisko: " + this.surName + ", saldo konta: " + this.accBalance;
     }
 }
