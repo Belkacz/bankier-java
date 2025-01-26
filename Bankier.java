@@ -14,7 +14,7 @@ import java.util.Scanner;
  */
 public class Bankier {
     static Scanner scan = new Scanner(System.in);
-    private List<VipClient> clients = new ArrayList<>();
+    private List<Client> clients = new ArrayList<>();
 
 
     private static void addClient(){
