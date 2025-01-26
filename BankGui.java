@@ -110,7 +110,8 @@ public class BankGui {
             if(c1 != null && c2 != null && amount > 0) {
                 if(this.bankier.transferMoney(c1, c2, amount)) {
                     refreshTable();
-                    transferDialog.setVisible(false);
+//                    transferDialog.setVisible(false);
+                    transferDialog.dispose();
                     moneyTransferBtn.setEnabled(true);
                 } else {
                     errorLabel.setText("Coś poszło bardzo nie ten teges");
@@ -120,6 +121,119 @@ public class BankGui {
         cancelButton.addActionListener(e -> {
             transferDialog.dispose();
             moneyTransferBtn.setEnabled(true);
+        });
+    }
+
+    private void showDeposit(JButton depositBtn) {
+        depositBtn.setEnabled(false);
+        List<Client> clients = this.bankier.getClients();
+        JDialog depositDialog = new JDialog();
+        depositDialog.setTitle("Zdeponuj Pieniądze");
+        depositDialog.setSize(800, 400);
+        depositDialog.setLocationRelativeTo(null);
+
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new GridLayout(4, 2));
+
+        formPanel.add(new JLabel("Wpłacjący:"));
+        JComboBox<Client> clientComboBox = new JComboBox<>(clients.toArray(new Client[0]));
+        formPanel.add(clientComboBox);
+
+        formPanel.add(new JLabel("Kwota:"));
+        JTextField amountField = new JTextField();
+        formPanel.add(amountField);
+
+        JButton confirmDepositBtn = new JButton("Wpłać");
+        formPanel.add(confirmDepositBtn);
+        JButton cancelButton = new JButton("Anuluj");
+        formPanel.add(cancelButton);
+
+        JLabel errorLabel = new JLabel("");
+        errorLabel.setForeground(Color.RED);
+        formPanel.add(errorLabel);
+
+        depositDialog.add(formPanel);
+        depositDialog.setVisible(true);
+        confirmDepositBtn.addActionListener(e -> {
+            Client client = (Client) clientComboBox.getSelectedItem();
+            double amount = 0;
+            try {
+                amount = Double.parseDouble(amountField.getText());
+            } catch (NumberFormatException ex) {
+                errorLabel.setText("Coś jest nieteges z tą liczbą");
+                return;
+            }
+            if(client != null && amount > 0) {
+                if(this.bankier.depositMoney(client, amount)) {
+                    refreshTable();
+//                    depositDialog.setVisible(false);
+                    depositDialog.dispose();
+                    depositBtn.setEnabled(true);
+                } else {
+                    errorLabel.setText("Coś poszło bardzo nie ten teges");
+                }
+            }
+        });
+        cancelButton.addActionListener(e -> {
+            depositDialog.dispose();
+            depositBtn.setEnabled(true);
+        });
+    }
+
+
+    private void showWithdraw(JButton withdrawBtn) {
+        withdrawBtn.setEnabled(false);
+        List<Client> clients = this.bankier.getClients();
+        JDialog withdrawDialog = new JDialog();
+        withdrawDialog.setTitle("Wyciągnij Pieniądze");
+        withdrawDialog.setSize(800, 400);
+        withdrawDialog.setLocationRelativeTo(null);
+
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new GridLayout(4, 2));
+
+        formPanel.add(new JLabel("Wypłacjący:"));
+        JComboBox<Client> clientComboBox = new JComboBox<>(clients.toArray(new Client[0]));
+        formPanel.add(clientComboBox);
+
+        formPanel.add(new JLabel("Kwota:"));
+        JTextField amountField = new JTextField();
+        formPanel.add(amountField);
+
+        JButton confirmWithdrawBtn = new JButton("Wypłać");
+        formPanel.add(confirmWithdrawBtn);
+        JButton cancelButton = new JButton("Anuluj");
+        formPanel.add(cancelButton);
+
+        JLabel errorLabel = new JLabel("");
+        errorLabel.setForeground(Color.RED);
+        formPanel.add(errorLabel);
+
+        withdrawDialog.add(formPanel);
+        withdrawDialog.setVisible(true);
+        confirmWithdrawBtn.addActionListener(e -> {
+            Client client = (Client) clientComboBox.getSelectedItem();
+            double amount = 0;
+            try {
+                amount = Double.parseDouble(amountField.getText());
+            } catch (NumberFormatException ex) {
+                errorLabel.setText("Coś jest nieteges z tą liczbą");
+                return;
+            }
+            if(client != null && amount > 0) {
+                if(this.bankier.withdrawMoney(client, amount)) {
+                    refreshTable();
+//                    depositDialog.setVisible(false);
+                    withdrawDialog.dispose();
+                    withdrawBtn.setEnabled(true);
+                } else {
+                    errorLabel.setText("Coś poszło bardzo nie ten teges");
+                }
+            }
+        });
+        cancelButton.addActionListener(e -> {
+            withdrawDialog.dispose();
+            withdrawBtn.setEnabled(true);
         });
     }
 
@@ -136,7 +250,8 @@ public class BankGui {
                     client.getFirstName(),
                     client.getSurName(),
                     client.getAccBalance(),
-                    client.getInterest()
+                    client.getInterest(),
+                    client.getVipStatus()
             };
             tableModel.addRow(row);
         }
@@ -160,6 +275,14 @@ public class BankGui {
         JButton moneyTransferBtn = new JButton("Przelej Środki");
         bottomPanel.add(moneyTransferBtn);
         moneyTransferBtn.addActionListener(e -> showTransferForm(moneyTransferBtn));
+
+        JButton depositMoneyBtn = new JButton("Zdeponuj Środki");
+        bottomPanel.add(depositMoneyBtn);
+        depositMoneyBtn.addActionListener(e -> showDeposit(depositMoneyBtn));
+
+        JButton withdrawMoneyBtn = new JButton("Wypłać Środki");
+        bottomPanel.add(withdrawMoneyBtn);
+        withdrawMoneyBtn.addActionListener(e -> showWithdraw(withdrawMoneyBtn));
 
         frame.add(centerPene, BorderLayout.CENTER);
         frame.add(bottomPanel, BorderLayout.SOUTH);

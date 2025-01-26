@@ -14,7 +14,7 @@ import java.util.Scanner;
  */
 public class Bankier {
     static Scanner scan = new Scanner(System.in);
-    private List<Client> clients = new ArrayList<>();
+    private List<VipClient> clients = new ArrayList<>();
 
 
     private static void addClient(){
@@ -38,7 +38,7 @@ public class Bankier {
 
     public boolean transferMoney(Client client1, Client client2, double amount){
         double c1Saldo = client1.getAccBalance();
-        if(c1Saldo < amount) {
+        if(c1Saldo < amount || amount <= 0) {
             return false;
         }
         double c2Saldo = client2.getAccBalance();
@@ -46,6 +46,26 @@ public class Bankier {
         c2Saldo += amount;
         client1.setAccBalance(c1Saldo);
         client2.setAccBalance(c2Saldo);
+        return true;
+    }
+
+    public boolean depositMoney(Client client, double amount){
+        double clientSaldo = client.getAccBalance();
+        if(amount <= 0) {
+            return false;
+        }
+        clientSaldo += amount;
+        client.setAccBalance(clientSaldo);
+        return true;
+    }
+
+    public boolean withdrawMoney(Client client, double amount){
+        double clientSaldo = client.getAccBalance();
+        if(clientSaldo < amount || amount <= 0) {
+            return false;
+        }
+        clientSaldo -= amount;
+        client.setAccBalance(clientSaldo);
         return true;
     }
 
