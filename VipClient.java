@@ -1,6 +1,8 @@
 package belkadev.pl;
 
-public class VipClient extends Client {
+import java.io.Serializable;
+
+public class VipClient extends Client implements Serializable {
     private boolean vipStatus = true;
     private double additionalInterests;
 
@@ -24,6 +26,12 @@ public class VipClient extends Client {
 
     public void setVipStatus(boolean status) {
         this.vipStatus = status;
+    }
+
+    public void calculateInterest() {
+        double currentBalance = this.getAccBalance();
+        double newBalance = currentBalance * ((this.getInterest() + this.additionalInterests) / 100);
+        this.setAccBalance(newBalance);
     }
 
     @Override

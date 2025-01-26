@@ -237,6 +237,109 @@ public class BankGui {
         });
     }
 
+    private void showChangeVip(JButton vipBtn) {
+        vipBtn.setEnabled(false);
+        List<Client> clients = this.bankier.getClients();
+        JDialog vipDialog = new JDialog();
+        vipDialog.setTitle("Zmień status Vip");
+        vipDialog.setSize(800, 600);
+        vipDialog.setLocationRelativeTo(null);
+
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new GridLayout(5, 2));
+
+        final Boolean[] clientStatusRaw = {null};
+        final Client[] selectedClient = {null};
+        final String[] clientStatus = {""};
+
+        JLabel vipStatusField = new JLabel();
+        JTextField additionalInterestInput = new JTextField();
+        JLabel additionalInterestLabel = new JLabel(" 0% ");
+
+        formPanel.add(new JLabel("Klient:"));
+        JComboBox<Client> clientComboBox = new JComboBox<>(clients.toArray(new Client[0]));
+        formPanel.add(clientComboBox);
+
+        formPanel.add(new JLabel("Status:"));
+        formPanel.add(vipStatusField);
+
+        formPanel.add(new JLabel("Dodatkowe odsetki:"));
+        formPanel.add(additionalInterestInput);
+
+        additionalInterestInput.setVisible(false);
+        additionalInterestLabel.setVisible(false);
+
+        clientComboBox.addActionListener(e -> {
+            selectedClient[0] = (Client) clientComboBox.getSelectedItem();
+            if (selectedClient[0] != null) {
+                clientStatusRaw[0] = selectedClient[0].getVipStatus();
+                clientStatus[0] = clientStatusRaw[0] ? "Status Vip" : "Status NIE Vip";
+                vipStatusField.setText(clientStatus[0]);
+
+                if (clientStatusRaw[0]) {
+                    additionalInterestInput.setVisible(false);
+                    additionalInterestLabel.setVisible(true);
+                } else {
+                    additionalInterestLabel.setVisible(false);
+                    additionalInterestInput.setVisible(true);
+                    additionalInterestInput.setText("");
+                }
+                formPanel.revalidate();
+                formPanel.repaint();
+            }
+        });
+
+        JButton changeStatusBtn = new JButton("Zmień status");
+        formPanel.add(changeStatusBtn);
+        JButton cancelButton = new JButton("Anuluj");
+        formPanel.add(cancelButton);
+
+        vipDialog.add(formPanel);
+        vipDialog.setVisible(true);
+
+        changeStatusBtn.addActionListener(e -> {
+            if (clientStatusRaw[0] != null) {
+                if (clientStatusRaw[0]) {
+                    this.bankier.changeToNonVip(selectedClient[0]);
+                    refreshTable();
+                    vipDialog.dispose();
+                    vipBtn.setEnabled(true);
+                } else {
+                    String additionalInterestText = additionalInterestInput.getText().trim();
+                    double additionalInterest = 0;
+
+                    try {
+                        if (additionalInterestText.endsWith("%")) {
+                            additionalInterest = Double.parseDouble(additionalInterestText.replace("%", "")) / 100;
+                        } else {
+                            additionalInterest = Double.parseDouble(additionalInterestText);
+                        }
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(vipDialog, "Niepoprawna wartość odsetek.");
+                        return;
+                    }
+
+                    this.bankier.changeToVip(selectedClient[0], additionalInterest);
+                }
+                refreshTable();
+                vipDialog.dispose();
+                vipBtn.setEnabled(true);
+            }
+        });
+
+        cancelButton.addActionListener(e -> {
+            vipDialog.dispose();
+            vipBtn.setEnabled(true);
+        });
+    }
+
+    private void refreshAccBalance() {
+        List<Client> clients = this.bankier.getClients();
+        this.bankier.calculateClientsInterest(clients);
+        refreshTable();
+    }
+
+
     private void createTable(JPanel bottomPanel) {
 
     }
@@ -260,7 +363,7 @@ public class BankGui {
     private void createGui() {
         JFrame frame = new JFrame("Bankier - aplikacja bankowa");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(600, 500);
+        frame.setSize(1000, 600);
         String[] tableColumns = {"ID", "Imię", "Nazwisko", "Saldo", "Oprocentowanie", "VIP status"};
         tableModel = new DefaultTableModel(tableColumns, 0);
         JTable table = new JTable(tableModel);
@@ -284,10 +387,26 @@ public class BankGui {
         bottomPanel.add(withdrawMoneyBtn);
         withdrawMoneyBtn.addActionListener(e -> showWithdraw(withdrawMoneyBtn));
 
+        JButton vipBtn = new JButton("Zmień na vipa");
+        bottomPanel.add(vipBtn);
+        vipBtn.addActionListener(e -> showChangeVip(vipBtn));
+
+        JButton hajsBtn = new JButton("Przelicz Hajs");
+        bottomPanel.add(hajsBtn);
+        hajsBtn.addActionListener(e -> refreshAccBalance());
+
+
+        JButton saveBtn = new JButton("Zapisz do pliku");
+        bottomPanel.add(saveBtn);
+        saveBtn.addActionListener(e -> this.bankier.saveClientsToFile(this.bankier.getClients(), "clients"));
+
+
         frame.add(centerPene, BorderLayout.CENTER);
         frame.add(bottomPanel, BorderLayout.SOUTH);
         refreshTable();
         frame.setVisible(true);
+        this.bankier.setClients(this.bankier.loadClientsFromFile("clients"));
+        refreshTable();
     }
 
     public static void main(String[] args) {
