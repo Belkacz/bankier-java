@@ -6,8 +6,8 @@ public class Client {
 
     private String firstName;
     private String surName;
-    private Double accBalance;
-    private Double interest;
+    public double accBalance;
+    private double interest;
 
     public Client(String firstName, String surName, Double initialAccBalance, Double interest) {
         counterId++;
